@@ -2,17 +2,30 @@
 
 Modularized state-management tools for modern front-end applications. With it you can manage dispatched messages in a clean and predictable way - for either small or large scale projects.
 
-## Modularized Boilerplate for State Management
+## State Management Tooling
 
-When working on front-end applications you spend a good amount of time (maybe even sometimes the majority of it) interacting with data sources. There's alway various validation and re-shaping operations that are needed and you often have to manage larger structures of JSON with centralized "stores". Getting data funneled through that entire pipeline in a clean and performant way that can used at-scale is an enormous challenge.
+Working on front-end applications you spend a good amount of time interacting with data sources. Various data validation and data re-shaping operations are needed to manage larger maps of JSON in centralized "stores". Funneling data through those pipelines cleanly and efficiently is a challenge.
 
-Tools like [Redux](https://github.com/reactjs/redux) can help to manage state in large scale applications that have larger datasets. It introduced a middleware chain to the front-end that mirrors the way back-end developers apply middleware to inbound http requests. All front-end state gets placed into a centralized "store" that is connected to the front-end components - if you're using [react-redux](https://github.com/reactjs/react-redux) - via the framework's "context api". When users interact with the components it causes "Actions" to be dispatched into the Redux middleware chain, at the end of which it may change the state of the store. There are a myriad of tools that can be applied to this middleware chain and it's extremely easy to write your own.
+Tools like [Redux](https://github.com/reactjs/redux) can help to manage state in large applications with large datasets. Redux introduced a middleware chain to the which mirrors the way back-end frameworks leverage middleware to handle inbound http requests. And when users interact with the web application "Actions" are dispatched into the Redux middleware chain, at the end of which a change is usually produced in the store. There are many tools compatible with this middleware flow and it's easy to write your own. __Ruddy__ is one of those attempts and it is itself part of a chain of ideas floating around the React and Redux communities.
 
-This library is one of those attempts and it is itself part of a chain of ideas floating around the React and Redux communities - but is not limited to just that ecosystem, as the topic of state management is the broader focus of this library. Several years back Erik Rasmussen (the author of [Redux Form](https://github.com/erikras/redux-form)) [suggested an approach to managing Redux boilerplate](https://github.com/erikras/ducks-modular-redux) so that the component itself would be more reusable across applications. He found himself often copying and pasting from a predicable template of boilerplate code, and suggested some modularization patterns to help avoid the pitfalls. The Ruby and Java ecosystems have their names own names for modules and he suggested a name from the last syllable of Redux, so "ducks" are now a (somewhat) common way to refer to these modularized bundles of Redux boilerplate.
+## Modular Redux proposal
 
-Several implementations of his proposal are available in the Redux ecosystem, [one in particular is extensible](https://github.com/investtools/extensible-duck) and provides the entire module to any function you write within it (your Reducers, Selectors, Action Creators all have access to their own parent object). With it you can work with fully namespaced types without having to type out long `Strings` all the time. This now feels even more familiar as popular libraries like GraphQL and their server-side implementations heavily use a context object where your individual resolves can have access on each inbound request.
+Several years back Erik Rasmussen (the author of [Redux Form](https://github.com/erikras/redux-form)) [suggested an approach to managing Redux boilerplate](https://github.com/erikras/ducks-modular-redux) so that the component itself would be more reusable across applications. He found himself often copying and pasting from a predicable template of boilerplate code, and suggested some modularization patterns to help avoid the pitfalls. The Ruby and Java ecosystems have their names own names for modules and he suggested a name from the last syllable of Redux, so "ducks" are now a (somewhat) common way to refer to these modularized bundles of Redux boilerplate.
 
-Ruddy is forked from that library and adds several pieces on top of that to create a full middleware (micro-framework) solution. It adds tools like state machines, web workers, rich form validations, action enhancers, action multipliers, action throttling/debouncing/depth-limiting, you can validate and coerce actions to a certain schema in a syntax that most closely resembles working with objects. How you compose Objects (functional or object-oriented) is however you choose, Ruddy just provides the relevant tools for working with Objects (actions) dispatched into a middleware chain.
+## Extensible ducks
+
+Several implementations of modularized ducks are available across the Redux ecosystem, [one in particular is extensible](https://github.com/investtools/extensible-duck) and provides the entire module to any function you write within it (your Reducers, Selectors, Action Creators all have access to their own parent object). With it you can work with fully namespaced types without having to type out long `Strings` all the time. This now feels even more familiar as popular libraries like GraphQL and their server-side implementations heavily use a context object where your individual resolves can have access on each inbound request.
+
+Ruddy is forked from that library and adds several additional pieces, resulting in a full middleware solution (micro-framework). Some of its additions include:
+
+* state machines
+* web workers
+* rich form validations
+* action enhancers
+* action multipliers
+* action throttling/debouncing/depth-limiting
+
+Your programming paradigm - functional or object-oriented - is up to you, and Ruddy just provides the tools for working with Objects (actions) dispatched into a middleware chain.
 
 ### Inspirations and/or Dependencies
 
@@ -31,7 +44,7 @@ npm install ruddy
 # Usage
 
 ```javascript
-import {createDuck} from 'ruddy'
+import { createDuck } from 'ruddy'
 
 const dux = createDuck({/* options */})
 ```
@@ -107,7 +120,3 @@ __Note__: It doesn't matter what alias you give your duck when importing, becaus
 ```
 {auth, products, customers, orders}
 ```
-
-## State Machines & Validators
-
-The main difference between this library and the [extensible-duck](https://github.com/investtools/extensible-duck) predecessor is the addition of support for State Machines and Validators. These can be used in the obvious way (extracting them from the duck instance and using them manually in your reducer(s)) but they can _also_ be used in a unique, almost automatic manner whenever your reducer processes a dispatched action. To be used in such a manner means Ruddy makes a couple of assumptions about your Redux store (but if those assumptions mismatch the way you write your Redux application you can use them manually in the manner mentioned above). It's expected that the `state` passed into your reducer is an object, and in all but the rarest and simplest cases this is how your store is shaped anyway. It's also expected that the state machine can represent the "current state" somewhere in your Redux store (the machine itself is not kept there) and by default Ruddy will set a prop called `states` (which is an `Object` whose values are the "current state" representation for each of your named state machines).
