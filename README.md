@@ -1,5 +1,13 @@
 # Ruddy
 
+<img
+  src="https://raw.githubusercontent.com/arizonatribe/ruddy/master/media/logo.png"
+  alt="Ruddy JS"
+  width="250"
+  height="250"
+  align="right"
+/>
+
 Modularized state-management tools for modern front-end applications. With it you can manage dispatched messages in a clean and predictable way - for either small or large scale projects.
 
 ## State Management Tooling

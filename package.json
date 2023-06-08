@@ -1,6 +1,6 @@
 {
   "name": "ruddy",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Modularized state-management tools for modern front-end applications. Manage dispatched messages in a clean and predictable way for either small or large scale projects",
   "main": "cjs/index.js",
   "module": "es/index.js",
