@@ -8,7 +8,6 @@ import {
   assocPath,
   both,
   compose,
-  contains,
   converge,
   curry,
   defaultTo,
@@ -19,6 +18,7 @@ import {
   has,
   head,
   ifElse,
+  includes,
   is,
   isEmpty,
   isNil,
@@ -38,7 +38,7 @@ import {
   useWith,
   values,
   when
-} from 'ramda'
+} from "ramda"
 
 import {
   coerceToString,
@@ -50,16 +50,16 @@ import {
   isNotBlankString,
   isNotNil,
   isPlainObj
-} from '../util'
-import {getTypes} from '../types'
+} from "../util"
+import {getTypes} from "../types"
 
 /**
  * Simple check to see whether a given duck's machines is empty.
  *
- * @func
+ * @function
  * @sig {k: v} -> Boolean
  * @param {Object} machines A duck's collection of state machines
- * @returns {Boolean} whether or not the machines are empty
+ * @returns {boolean} whether or not the machines are empty
  */
 export const noMachines = anyPass([isNil, isEmpty])
 
@@ -67,7 +67,7 @@ export const noMachines = anyPass([isNil, isEmpty])
  * Adds an object containing the current state of all the state machines onto
  * a given section of the redux store
  *
- * @func
+ * @function
  * @sig {k: v} -> {k: v} -> {k: v}
  * @param {Object} duck A duck instance, containing the state machines and the
  * prop name/path to the section of the store where their state is tracked
@@ -76,7 +76,7 @@ export const noMachines = anyPass([isNil, isEmpty])
  * current state of all the state machines
  */
 export const addTransitionsToState = curry(
-  (state, {initialState = {}, stateMachinesPropName = ['states']}) =>
+  (state, {initialState = {}, stateMachinesPropName = ["states"]}) =>
     compose(
       unless(
         hasNestedProp(stateMachinesPropName),
@@ -91,10 +91,10 @@ export const addTransitionsToState = curry(
  * State machines are objects whose keys are states and whose values are objects
  * inside of which the transition-to state is the value of each of its key/value pairs.
  *
- * @func
+ * @function
  * @sig {k: v} -> [String]
  * @param {Object} machine A single state machine
- * @returns {String[]} A list of unique state transitions for the provided machine
+ * @returns {string[]} A list of unique state transitions for the provided machine
  */
 export const getTransitionsForMachine = compose(
   uniq,
@@ -109,10 +109,10 @@ export const getTransitionsForMachine = compose(
  * State machines are objects whose keys are states and whose values are objects
  * inside of which the input value is the key of each of its key/value pairs.
  *
- * @func
+ * @function
  * @sig {k: v} -> [String]
  * @param {Object} machine A single state machine
- * @returns {String[]} A list of unique inputs to the provided state machine
+ * @returns {string[]} A list of unique inputs to the provided state machine
  */
 export const getStateInputsForMachine = compose(
   uniq,
@@ -127,17 +127,17 @@ export const getStateInputsForMachine = compose(
  * State machines are objects whose keys are states and whose values are objects
  * inside of which the input value is the key of each of its key/value pairs.
  *
- * @func
+ * @function
  * @sig {k: v} -> [String]
  * @param {Object} duck A duck containing one or more state machines
- * @returns {String[]} A list of unique inputs to all the state machines for the provided duck
+ * @returns {string[]} A list of unique inputs to all the state machines for the provided duck
  */
 export const getStateInputsForAllMachines = compose(
   uniq,
   flatten,
   map(getStateInputsForMachine),
   values,
-  prop('machines')
+  prop("machines")
 )
 
 /**
@@ -145,10 +145,10 @@ export const getStateInputsForAllMachines = compose(
  * State machines are objects whose keys are states and whose values are objects
  * inside of which the input value is the key of each of its key/value pairs.
  *
- * @func
+ * @function
  * @sig {k: v} -> [String]
  * @param {Object} duck A duck containing one or more state machines and action types
- * @returns {String[]} A list of any invalid inputs for the state machines of the provided duck
+ * @returns {string[]} A list of any invalid inputs for the state machines of the provided duck
  */
 export const invalidStateMachineInputs = converge(difference, [getStateInputsForAllMachines, getTypes])
     
@@ -157,10 +157,10 @@ export const invalidStateMachineInputs = converge(difference, [getStateInputsFor
  * State machines are objects whose keys are states and whose values are objects
  * inside of which the input value is the key of each of its key/value pairs.
  *
- * @func
+ * @function
  * @sig {k: v} -> Boolean
  * @param {Object} machine A single state machine
- * @returns {Boolean} whether or not the states for the state machine are strings
+ * @returns {boolean} whether or not the states for the state machine are strings
  */
 export const areStateNamesStrings = compose(all(is(String)), keys)
 
@@ -169,10 +169,10 @@ export const areStateNamesStrings = compose(all(is(String)), keys)
  * State machines are objects whose keys are states and whose values are objects
  * inside of which the input value is the key and transition is the value of each of its key/value pairs.
  *
- * @func
+ * @function
  * @sig {k: v} -> Boolean
  * @param {Object} machine A single state machine
- * @returns {Boolean} whether or not the inputs and transitions for the state machine are strings
+ * @returns {boolean} whether or not the inputs and transitions for the state machine are strings
  */
 export const areInputsAndTransitionsStrings = compose(
   all(allPass([
@@ -190,10 +190,10 @@ export const areInputsAndTransitionsStrings = compose(
  * State machines are objects whose keys are states and whose values are objects
  * inside of which the input value is the key of each of its key/value pairs.
  *
- * @func
+ * @function
  * @sig {k: v} -> Boolean
  * @param {Object} duck A duck containing one or more state machines and action types
- * @returns {Boolean} whether or not all the inputs for the state machines are among the duck's action types
+ * @returns {boolean} whether or not all the inputs for the state machines are among the duck's action types
  */
 export const areStateMachineInputsActionTypes = compose(all(isEmpty), invalidStateMachineInputs)
 
@@ -202,22 +202,22 @@ export const areStateMachineInputsActionTypes = compose(all(isEmpty), invalidSta
  * State machines are objects whose keys are states and whose values are objects
  * inside of which the transition-to state is the value of each of its key/value pairs.
  *
- * @func
+ * @function
  * @sig {k: v} -> Boolean
  * @param {Object} machine A single state machine
- * @returns {Boolean} whether or not all the transition names are also states for a given state machine
+ * @returns {boolean} whether or not all the transition names are also states for a given state machine
  */
 export const isEachTransitionAmongMachineStates = useWith(difference, [getTransitionsForMachine, keys])
 
 /**
  * Checks to see whether a given machine allows for a given transition, provided its current state
  *
- * @func
+ * @function
  * @sig String -> String -> {k: v} -> Boolean
- * @param {String} transitionName A string value representing a potential state transition
- * @param {String} currentState A string value representing the current state
+ * @param {string} transitionName A string value representing a potential state transition
+ * @param {string} currentState A string value representing the current state
  * @param {Object} machine A state machine which contains the possible states and their associated transitions
- * @returns {Boolean} whether or not the transition is possible from the current state
+ * @returns {boolean} whether or not the transition is possible from the current state
  */
 export const isTransitionPossible = curry((transitionName, currentState, machine) =>
   compose(
@@ -234,7 +234,7 @@ export const isTransitionPossible = curry((transitionName, currentState, machine
  * The values for a machine state object (called transitions) are merely
  * the names of fellow machine state objects (also created by this function).
  *
- * @func
+ * @function
  * @sig {k: v} -> {k: v} -> {k: v}
  * @param {Object} machine A single state machine
  * @param {Object} types An object whose keys/values correspond
@@ -250,7 +250,7 @@ export const createMachineStates = curry((machine = {}, types = {}) =>
       pick(
         compose(
           map(head),
-          filter(compose(contains(__, values(types)), head)),
+          filter(compose(includes(__, values(types)), head)),
           filter(compose(has(__, machine), last)),
           filter(all(is(String))),
           toPairs
@@ -268,7 +268,7 @@ export const createMachineStates = curry((machine = {}, types = {}) =>
  * values for the machine and whose values are objects containing each action type that
  * may produce a transition to another state.
  *
- * @func
+ * @function
  * @sig {k: v} -> {k: v} -> {k: v}
  * @param {Object} machines An object full of one or more state machines
  * @param {Object} duck A duck instance
@@ -290,18 +290,18 @@ export const createMachines = curry((machines, duck) =>
  * an Array of prop names that represent a nested prop's path.
  * And if a String is passed in, a dot-separated format is also supported.
  *
- * @func
+ * @function
  * @sig String -> [String]
- * @param {String|String[]} path The prop name or path to the section of the
+ * @param {string | string[]} path The prop name or path to the section of the
  * store where the state machines current state is tracked.
- * @returns {String[]} an array of strings representing the nested path to the
+ * @returns {string[]} an array of strings representing the nested path to the
  * prop where state machines current state is tracked in the redux store
  */
 export const getStateMachinesPropPath = ifElse(
-  allPass([is(String), contains('.'), isValidPropName]),
-  split('.'),
+  allPass([is(String), includes("."), isValidPropName]),
+  split("."),
   compose(
-    when(isEmpty, always(['states'])),
+    when(isEmpty, always(["states"])),
     filter(isNotBlankString),
     when(is(String), Array)
   )
@@ -311,13 +311,13 @@ export const getStateMachinesPropPath = ifElse(
  * Builds a flattened object where the keys are the names of each of the duck's state machines,
  * and the values are each set to 'initial'.
  *
- * @func
+ * @function
  * @sig {k: v} -> {k: v}
  * @param {Object} machines An object containing the definitions for one or more state machines
  * @returns {Object} a flattened object where the current state of each state machine will be tracked
  */
 export const getDefaultStateForMachines = (machines = {}) =>
-  reduce((obj, key) => ({...obj, [key]: 'initial'}), {}, keys(machines || {}))
+  reduce((obj, key) => ({...obj, [key]: "initial"}), {}, keys(machines || {}))
 
 /**
  * Retrieves the section of the redux store where the current state is being
@@ -325,18 +325,18 @@ export const getDefaultStateForMachines = (machines = {}) =>
  * is usually just a flattened object with a single value for each named state
  * machine, representing its current state. Each possible state for any of those
  * is defined in the Ducks.
- *
- * @func
+ * @function
  * @sig {k: v} -> {k: v} -> {k: v}
+ * @param duck.machines
+ * @param duck.stateMachinesPropName
  * @param {Object} duck A duck instance, containing the state machines and the
  * prop name/path to the section of the store where their state is tracked
- * @param {*} state The current state of this portion of the store
  * @returns {Object} A flattened Object containing the names of each state
  * machine (String) and its current state (String) as key/value pairs
  */
 export const getCurrentState = ({machines = {}, stateMachinesPropName} = {}) =>
   compose(
-    mergeDeepRight(map(always('initial'), machines)),
+    mergeDeepRight(map(always("initial"), machines)),
     pick(keys(machines)),
     defaultTo({}),
     path(coerceToArray(stateMachinesPropName))
@@ -347,7 +347,7 @@ export const getCurrentState = ({machines = {}, stateMachinesPropName} = {}) =>
  * the rules defined for each state machine (in the ducks), an action is processed
  * and may cause one or more ore the state machines to transition.
  *
- * @func
+ * @function
  * @sig {k: v} -> {k: v} -> {k: v}
  * @param {Object|*} state The current state of this portion of the store
  * @param {Object} action A dispatched redux action
@@ -377,13 +377,13 @@ export const getNextState = curry(
  * Checks whether a dispatched action's type is listed among the
  * current state's input values for one or more of the state machines.
  *
- * @func
+ * @function
  * @sig {k: v} -> {k: v} -> {k: v} -> Boolean
  * @param {Object|*} state The current state of this portion of the store
  * @param {Object} action A dispatch redux action
  * @param {Object} duck A duck, which contains both state machines and the
  * corresponding prop name/path in the redux store where their current state is tracked
- * @returns {Boolean} whether or not the dispatched action is listed as an input
+ * @returns {boolean} whether or not the dispatched action is listed as an input
  * value for the state machine(s) current state
  */
 export const isActionTypeInCurrentState = curry(

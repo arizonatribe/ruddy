@@ -1,5 +1,5 @@
-import {curry, is, unnest} from 'ramda'
-import {isAction} from '../util/is'
+import {curry, is, unnest} from "ramda"
+import {isAction} from "../util/is"
 
 export default curry(
   (logger, multipliers, dispatch, action) => {

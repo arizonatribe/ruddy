@@ -1,4 +1,4 @@
-import test from 'tape'
+import test from "tape"
 import {
   concat,
   converge,
@@ -10,83 +10,83 @@ import {
   prop,
   toUpper,
   values
-} from 'ramda'
-import {createDuck, extendDuck} from '../src/duck'
+} from "ramda"
+import {createDuck, extendDuck} from "../src/duck"
 
-test('basics of action enhancers', (t) => {
+test("basics of action enhancers", (t) => {
   const now = new Date()
   const duck = createDuck({
     consts: {
-      baseUrl: 'http://localhost/api/'
+      baseUrl: "http://localhost/api/"
     },
-    types: ['SCREAM', 'CLUTTER', 'ENDPOINT', 'FORMAT', 'NAME'],
+    types: ["SCREAM", "CLUTTER", "ENDPOINT", "FORMAT", "NAME"],
     enhancers: ({types, consts}) => ({
       [types.SCREAM]: {
         name: toUpper
       },
       [types.CLUTTER]: {
-        trunk: 'junk',
+        trunk: "junk",
         then: now
       },
       [types.ENDPOINT]: {
-        url: pipe(prop('endpoint'), concat(consts.baseUrl))
+        url: pipe(prop("endpoint"), concat(consts.baseUrl))
       },
       [types.FORMAT]: {
-        shapeyMode: 'strict',
+        shapeyMode: "strict",
         type: types.NAME,
-        name: pipe(pick(['firstName', 'lastName']), values, join(' '))
+        name: pipe(pick(["firstName", "lastName"]), values, join(" "))
       }
     })
   })
   t.deepEqual(
     duck.enhancers[duck.types.SCREAM]({
       type: duck.types.SCREAM,
-      name: 'Jim'
+      name: "Jim"
     }),
-    {type: duck.types.SCREAM, name: 'JIM'},
-    'the enhancers can reference the types on the duck instance'
+    {type: duck.types.SCREAM, name: "JIM"},
+    "the enhancers can reference the types on the duck instance"
   )
   t.deepEqual(
     duck.enhancers[duck.types.CLUTTER]({
       type: duck.types.CLUTTER,
-      name: 'Jim'
+      name: "Jim"
     }),
-    {type: duck.types.CLUTTER, name: 'Jim', trunk: 'junk', then: now},
-    'enhancer props which are not functions are passed through as-is'
+    {type: duck.types.CLUTTER, name: "Jim", trunk: "junk", then: now},
+    "enhancer props which are not functions are passed through as-is"
   )
   t.deepEqual(
     duck.enhancers[duck.types.ENDPOINT]({
       type: duck.types.ENDPOINT,
-      endpoint: 'users'
+      endpoint: "users"
     }),
-    {type: duck.types.ENDPOINT, url: 'http://localhost/api/users', endpoint: 'users'},
-    'can use the consts in the enhancers'
+    {type: duck.types.ENDPOINT, url: "http://localhost/api/users", endpoint: "users"},
+    "can use the consts in the enhancers"
   )
   t.deepEqual(
     duck.enhancers[duck.types.ENDPOINT]({
       type: duck.types.ENDPOINT,
-      endpoint: 'users'
+      endpoint: "users"
     }),
-    {type: duck.types.ENDPOINT, url: 'http://localhost/api/users', endpoint: 'users'},
-    'can use the consts in the enhancers'
+    {type: duck.types.ENDPOINT, url: "http://localhost/api/users", endpoint: "users"},
+    "can use the consts in the enhancers"
   )
   t.deepEqual(
     duck.enhancers[duck.types.FORMAT]({
       type: duck.types.FORMAT,
-      firstName: 'Lorem',
-      lastName: 'Ipsum',
+      firstName: "Lorem",
+      lastName: "Ipsum",
       age: 2000,
-      language: 'LATIN'
+      language: "LATIN"
     }),
-    {type: duck.types.NAME, name: 'Lorem Ipsum'},
-    'if you use a strict shaping function, only the fields from the spec are included'
+    {type: duck.types.NAME, name: "Lorem Ipsum"},
+    "if you use a strict shaping function, only the fields from the spec are included"
   )
   t.end()
 })
 
-test('lets the enhancers access the selectors', (t) => {
+test("lets the enhancers access the selectors", (t) => {
   const duck = createDuck({
-    types: ['SUM'],
+    types: ["SUM"],
     selectors: {
       sum: numbers => numbers.reduce((sum, n) => sum + n, 0)
     },
@@ -103,20 +103,20 @@ test('lets the enhancers access the selectors', (t) => {
       numbers: [1, 2, 3]
     }),
     {type: duck.types.SUM, numbers: 6},
-    'enhancers can use the selectors'
+    "enhancers can use the selectors"
   )
   t.end()
 })
 
-test('enhancers merge onto existing action body', (t) => {
+test("enhancers merge onto existing action body", (t) => {
   const duck = createDuck({
-    types: ['SUM'],
+    types: ["SUM"],
     selectors: {
       sum: numbers => numbers.reduce((sum, n) => sum + n, 0)
     },
     enhancers: ({types, selectors}) => ({
       [types.SUM]: {
-        sum: pipe(prop('numbers'), selectors.sum)
+        sum: pipe(prop("numbers"), selectors.sum)
       }
     })
   })
@@ -126,37 +126,37 @@ test('enhancers merge onto existing action body', (t) => {
       numbers: [1, 2, 3]
     }),
     {type: duck.types.SUM, numbers: [1, 2, 3], sum: 6},
-    'can create a new prop from existing ones'
+    "can create a new prop from existing ones"
   )
   t.end()
 })
 
-test('extending merges new enhancers with those from the original duck', (t) => {
+test("extending merges new enhancers with those from the original duck", (t) => {
   const duck = createDuck({
-    namespace: 'a',
-    store: 'x',
-    types: ['SUM'],
+    namespace: "a",
+    store: "x",
+    types: ["SUM"],
     selectors: {
       sum: numbers => numbers.reduce((sum, n) => sum + n, 0)
     },
     enhancers: ({types, selectors}) => ({
       [types.SUM]: {
-        sum: pipe(prop('numbers'), selectors.sum)
+        sum: pipe(prop("numbers"), selectors.sum)
       }
     })
   })
   const childDuck = extendDuck(duck, {
-    types: ['AVERAGE'],
+    types: ["AVERAGE"],
     enhancers: ({types, selectors}) => ({
       [types.AVERAGE]: {
-        avg: pipe(prop('numbers'), converge(divide, [selectors.sum, length]))
+        avg: pipe(prop("numbers"), converge(divide, [selectors.sum, length]))
       }
     })
   })
   t.deepEqual(
     Object.keys(childDuck.enhancers),
     [duck.types.SUM, childDuck.types.AVERAGE],
-    'verify child duck contains enhancers from the parent duck'
+    "verify child duck contains enhancers from the parent duck"
   )
   t.deepEqual(
     childDuck.enhancers[childDuck.types.AVERAGE]({
@@ -164,7 +164,7 @@ test('extending merges new enhancers with those from the original duck', (t) => 
       numbers: [1, 2, 3]
     }),
     {type: childDuck.types.AVERAGE, numbers: [1, 2, 3], avg: 2},
-    'using the child enhancer'
+    "using the child enhancer"
   )
   t.deepEqual(
     childDuck.enhancers[childDuck.types.SUM]({
@@ -172,14 +172,14 @@ test('extending merges new enhancers with those from the original duck', (t) => 
       numbers: [1, 2, 3]
     }),
     {type: duck.types.SUM, numbers: [1, 2, 3], sum: 6},
-    'can access the parent enhancers'
+    "can access the parent enhancers"
   )
   t.end()
 })
 
-test('enhancers can also be arrays of tranform functions', (t) => {
+test("enhancers can also be arrays of tranform functions", (t) => {
   const duck = createDuck({
-    types: ['AVERAGE'],
+    types: ["AVERAGE"],
     creators: ({types}) => ({
       computeAverage: (numbers = []) => ({numbers, type: types.AVERAGE})
     }),
@@ -190,14 +190,14 @@ test('enhancers can also be arrays of tranform functions', (t) => {
     },
     enhancers: ({types, selectors}) => ({
       [types.AVERAGE]: [
-        {count: pipe(prop('numbers'), selectors.count)},
-        {sum: pipe(prop('numbers'), selectors.sum)},
-        {average: converge(selectors.average, [prop('count'), prop('sum')])}
+        {count: pipe(prop("numbers"), selectors.count)},
+        {sum: pipe(prop("numbers"), selectors.sum)},
+        {average: converge(selectors.average, [prop("count"), prop("sum")])}
       ]
     })
   })
   const action = duck.creators.computeAverage([1, 4, 3, 7, 38, 2, 39, 27, 17, 104])
-  t.equal(typeof duck.enhancers[action.type], 'function', 'there is an enhancer whose name matches the action type')
+  t.equal(typeof duck.enhancers[action.type], "function", "there is an enhancer whose name matches the action type")
   t.deepEqual(
     duck.enhancers[action.type](action), {
       type: duck.types.AVERAGE,
@@ -210,16 +210,16 @@ test('enhancers can also be arrays of tranform functions', (t) => {
   t.end()
 })
 
-test('enhancers can also be a single, standard (not a shaping spec) function', (t) => {
+test("enhancers can also be a single, standard (not a shaping spec) function", (t) => {
   const duck = createDuck({
-    types: ['FETCH_USERS', 'FIND_USER_REQUEST'],
+    types: ["FETCH_USERS", "FIND_USER_REQUEST"],
     creators: ({types}) => ({
       fetchUser: id => ({id, type: types.FETCH_USERS})
     }),
     enhancers: ({types}) => ({
       [types.FETCH_USERS]: action => ({
         type: types.FIND_USER_REQUEST,
-        meta: {url: `http://localhost/api/users/${action.id}`, token: 'Bearer ey2dkjf02k30k101ksbbb'}
+        meta: {url: `http://localhost/api/users/${action.id}`, token: "Bearer ey2dkjf02k30k101ksbbb"}
       })
     })
   })
@@ -227,7 +227,7 @@ test('enhancers can also be a single, standard (not a shaping spec) function', (
   t.deepEqual(
     duck.enhancers[action.type](action), {
       type: duck.types.FIND_USER_REQUEST,
-      meta: {url: 'http://localhost/api/users/13', token: 'Bearer ey2dkjf02k30k101ksbbb'}
+      meta: {url: "http://localhost/api/users/13", token: "Bearer ey2dkjf02k30k101ksbbb"}
     }
   )
   t.end()

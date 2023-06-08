@@ -12,16 +12,16 @@ import {
   reject,
   unnest,
   values
-} from 'ramda'
-import createEffectMiddleware from './effects'
-import createEnhancerMiddleware from './enhancers'
-import createLimiterMiddleware from './limiters'
-import createMultiplierMiddleware from './multipliers'
-import createValidatorMiddleware from './validators'
-import {getRowValidationErrors} from '../duck/validate'
-import {createDuckLookup} from '../duck/create'
-import {isAction} from '../util/is'
-import createLogger from '../util/log'
+} from "ramda"
+import createEffectMiddleware from "./effects"
+import createEnhancerMiddleware from "./enhancers"
+import createLimiterMiddleware from "./limiters"
+import createMultiplierMiddleware from "./multipliers"
+import createValidatorMiddleware from "./validators"
+import {getRowValidationErrors} from "../duck/validate"
+import {createDuckLookup} from "../duck/create"
+import {isAction} from "../util/is"
+import createLogger from "../util/log"
 
 const flattenList = curry(
   (duckPropName, row) => compose(
@@ -38,16 +38,16 @@ export default (row, loggingEnabled = true) => {
   const logger = createLogger(loggingEnabled)
 
   if (validationErrors) {
-    logger.error('Error validating your row of ducks', validationErrors)
+    logger.error("Error validating your row of ducks", validationErrors)
     throw new Error(validationErrors)
   }
 
   const getDuckMatchingAction = createDuckLookup(row)
 
-  const effects = flattenList('effects', row)
-  const debouncing = flattenList('debouncing', row)
-  const throttling = flattenList('throttling', row)
-  const multipliers = compose(values, reject(either(isNil, isEmpty)), map(pathOr({}, ['multipliers'])))(row)
+  const effects = flattenList("effects", row)
+  const debouncing = flattenList("debouncing", row)
+  const throttling = flattenList("throttling", row)
+  const multipliers = compose(values, reject(either(isNil, isEmpty)), map(pathOr({}, ["multipliers"])))(row)
 
   const curriedEnhancers = createEnhancerMiddleware(logger)
   const curriedEffects = createEffectMiddleware(logger, effects)
@@ -91,7 +91,7 @@ export default (row, loggingEnabled = true) => {
           })
           .catch(err => logger.error(`There was a problem executing the effect for: "${action.type}"`, err))
       } else {
-        logger.error('Looks like something was dispatched that is not a valid action:', action)
+        logger.error("Looks like something was dispatched that is not a valid action:", action)
       }
     }
   }

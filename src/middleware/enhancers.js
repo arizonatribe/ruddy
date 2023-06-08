@@ -1,5 +1,5 @@
-import {__, curry, is, test as regTest} from 'ramda'
-import {isAction, isPlainObj} from '../util/is'
+import {__, curry, is, test as regTest} from "ramda"
+import {isAction, isPlainObj} from "../util/is"
 
 const createDispatchHandler = curry(
   (dispatch, originalAction, nextAction) => {

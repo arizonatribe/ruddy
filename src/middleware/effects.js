@@ -1,5 +1,5 @@
-import {curry} from 'ramda'
-import {isPromise, isAction} from '../util/is'
+import {curry} from "ramda"
+import {isPromise, isAction} from "../util/is"
 
 export const resultHandler = curry(
   (dispatch, action, result) => {

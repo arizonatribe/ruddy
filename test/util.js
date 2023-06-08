@@ -1,7 +1,7 @@
 /* eslint "no-console": "off" */
-import chalk from 'chalk'
-import {compose, converge, curry, identity, or, tap, test, is, length} from 'ramda'
-import util from 'util'
+import chalk from "chalk"
+import { compose, converge, curry, identity, or, tap, test, is, length } from "ramda"
+import util from "util"
 
 /* General helpers used in the unit tests */
 export const isString = is(String)
@@ -19,18 +19,18 @@ export const isShorterThan = len => isNumber(len) && len > 0 && (str => isString
  *     This is a caption:
  *     some error message!!!!
  *
- * @func
+ * @function
  * @sig String -> a -> String
- * @param {String} caption A caption for the logged message
+ * @param {string} caption A caption for the logged message
  * @param {*} message A value (of any type) which will be stringified and displayed by the logger
- * @returns {Function} A function which takes a caption and a value/message and
+ * @returns {function} A function which takes a caption and a value/message and
  * logs them (in stylized fashion) to the console
  */
 const log = curry((caption, message) => console.error(chalk`
-{bold.white ${Array(caption.length + 4).fill('-').join('')}}
+{bold.white ${Array(caption.length + 4).fill("-").join("")}}
   {bold.yellow ${caption}}
-  {bold.red ${util.format('%o', message)}}
-{bold.white ${Array(caption.length + 4).fill('-').join('')}}
+  {bold.red ${util.format("%o", message)}}
+{bold.white ${Array(caption.length + 4).fill("-").join("")}}
 `))
 
 /**
@@ -41,10 +41,10 @@ const log = curry((caption, message) => console.error(chalk`
  * by the predicate function.
  * Essentially this is an [identity](http://ramdajs.com/docs/#identity) function
  * that produces a side-effect of logging something of interest about about the value.
- *
- * @func
+ * @function
+ * @param message
+ * @param predicate
  * @sig a -> a
- * @param {*} a Any value of any type, which will be returned as-is
  * @returns {*} The original value, unaltered
  */
 export const taplog = (message, predicate = identity) =>

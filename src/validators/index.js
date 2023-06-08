@@ -5,10 +5,10 @@ import {
   applyTo,
   both,
   compose,
-  contains,
   curry,
   defaultTo,
   either,
+  includes,
   is,
   isEmpty,
   keys,
@@ -24,33 +24,33 @@ import {
   unless,
   valuesIn,
   when
-} from 'ramda'
+} from "ramda"
 
-import {isPlainObj, coerceToString} from '../util'
-import VALIDATION_LEVELS from './levels'
+import { isPlainObj, coerceToString } from "../util"
+import VALIDATION_LEVELS from "./levels"
 
 /**
  * Checks to see if a given value is one of the valid options for
  * Validation Level, which are: STRICT, CANCEL, PRUNE, LOG
  *
- * @func
+ * @function
  * @sig String -> Boolean
- * @param {String} level One of the four valid options: STRICT, CANCEL, PRUNE, LOG
- * @returns {Boolean} Whether or not a level is valid for middleware validations
+ * @param {string} level One of the four valid options: STRICT, CANCEL, PRUNE, LOG
+ * @returns {boolean} Whether or not a level is valid for middleware validations
  */
-export const isValidationLevel = contains(__, keys(VALIDATION_LEVELS))
+export const isValidationLevel = includes(__, keys(VALIDATION_LEVELS))
 
 /**
  * Sets a validation level, one of: STRICT, CANCEL, PRUNE, LOG.
  * The default - if no valid level is passed in - is CANCEL.
  *
- * @func
+ * @function
  * @sig String -> String
- * @param {String|*} level A validation level for the middleware
- * @returns {String} One of [STRICT, CANCEL, PRUNE, LOG]
+ * @param {string | *} level A validation level for the middleware
+ * @returns {string} One of [STRICT, CANCEL, PRUNE, LOG]
  */
 export const makeValidationLevel = compose(
-  unless(isValidationLevel, always('CANCEL')),
+  unless(isValidationLevel, always("CANCEL")),
   toUpper,
   trim,
   coerceToString
@@ -61,7 +61,7 @@ export const makeValidationLevel = compose(
  * input object and replaces the validation failures with the original value
  * from the input object.
  *
- * @func
+ * @function
  * @sig {k: v} -> {k: v} -> {k: v}
  * @param {Object} original The input object which when pushed through a validator yielded the associated validations
  * @param {Object} validations An object of validation results (true for pass, String[] for fails)
@@ -88,7 +88,7 @@ export const pruneInvalidFields = curry((original, validations) =>
  * A function that inspects a validations object (validated fields are Bools of `true` and
  * invalid fields are arrays of error messages) and removes everything but the errors
  *
- * @func
+ * @function
  * @sig {k: v} -> {k: v}
  * @param {Object} validations An object of validation results (true for pass, String[] for fails)
  * @returns {Object} The validations result pruned of all valid fields
@@ -99,7 +99,7 @@ export const pruneValidatedFields = compose(
     if (isPlainObj(value) && isEmpty(value)) {
       return prunedObj
     }
-    return {...prunedObj, [key]: value}
+    return { ...prunedObj, [key]: value }
   }, {}),
   reject(pairs => pairs[1] === true),
   toPairsIn
@@ -108,16 +108,16 @@ export const pruneValidatedFields = compose(
 /**
  * Simple retrieval function that looks for an action payload validator matching
  * a given action.
- *
- * @func
+ * @param validators
+ * @function
  * @sig {k: v} -> {k: v} -> ({k: v} -> Boolean)
- * @returns {Function} A validator matching a dispatched action (or a Function
+ * @returns {function} A validator matching a dispatched action (or a Function
  * always returning True if none exists)
  */
 export const getValidatorForAction = validators => compose(
   defaultTo(T),
   prop(__, validators),
-  prop('type')
+  prop("type")
 )
 
 /**
@@ -125,7 +125,7 @@ export const getValidatorForAction = validators => compose(
  * matches its action type (if one exists) and prune away any fields that failed validation.
  * The set of validator functions from which to match the action type is the only dependency.
  *
- * @func
+ * @function
  * @sig {k: v} -> {k: v} -> {k: v}
  * @param {Object} validators An object of curried [spected](https://github.com/25th-floor/spected) validator functions
  * @returns {Object} The original action paylod, minus any invalid fields
@@ -144,7 +144,7 @@ export const createPayloadPruner = (validators = {}) =>
  * matches its action type (if one exists).
  * The set of validator functions from which to match the action type is the only dependency.
  *
- * @func
+ * @function
  * @sig {k: v} -> {k: v} -> {k: v}
  * @param {Object} validators An object of curried [spected](https://github.com/25th-floor/spected) validator functions
  * @returns {Object|null} An Object of validation errors, if any, otherwise returns null
@@ -164,10 +164,10 @@ export const createPayloadValidationsLogger = (validators = {}) =>
  * where failed validations are Arrays of validation errors (strings) and validated props are simply marked `true`,
  * this function is only doing a quick, simple check for any props that are arrays.
  *
- * @func
+ * @function
  * @sig {k: v} -> Boolean
  * @param {Object} validations
- * @returns {Boolean}
+ * @returns {boolean}
  */
 export const anyValidationFailures = (validations = {}) => compose(
   any(either(both(isPlainObj, anyValidationFailures), is(Array))),
@@ -179,10 +179,10 @@ export const anyValidationFailures = (validations = {}) => compose(
  * matches its action type (if one exists) and do a basic pass/fail check.
  * The set of validator functions from which to match the action type is the only dependency.
  *
- * @func
+ * @function
  * @sig {k: v} -> {k: v} -> Boolean
  * @param {Object} validators An object of curried [spected](https://github.com/25th-floor/spected) validator functions
- * @returns {Function} A validator function to be applied against a dispatched action
+ * @returns {function} A validator function to be applied against a dispatched action
  */
 export const createPayloadValidator = (validators = {}) =>
   (action = {}) =>

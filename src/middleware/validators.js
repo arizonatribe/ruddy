@@ -9,15 +9,15 @@ import {
   identity,
   ifElse,
   isNil,
-  merge,
+  mergeDeepLeft,
   objOf,
   prop,
   T,
   unless
-} from 'ramda'
-import {isAction} from '../util/is'
-import {isActionTypeInCurrentState, noMachines} from '../machines'
-import VALIDATION_LEVELS from '../validators/levels'
+} from "ramda"
+import {isAction} from "../util/is"
+import {isActionTypeInCurrentState, noMachines} from "../machines"
+import VALIDATION_LEVELS from "../validators/levels"
 
 export default curry(
   (logger, getDuckMatchingAction, getState, action) => {
@@ -28,7 +28,7 @@ export default curry(
           isPayloadValid = T,
           getValidationErrors = always(null),
           pruneInvalidFields = always(action),
-          stateMachinesPropName = 'states',
+          stateMachinesPropName = "states",
           validationLevel = VALIDATION_LEVELS.CANCEL
         } = getDuckMatchingAction(action)
 
@@ -40,8 +40,8 @@ export default curry(
           /* Simple cancel if payload returns any invalid fields */
           [VALIDATION_LEVELS.CANCEL]: unless(isPayloadValid, F),
           /* Always pass the action through, but add a validationErrors prop if there are any */
-          [VALIDATION_LEVELS.LOG]: converge(merge, [identity, compose(
-            ifElse(isNil, always({}), objOf('validationErrors')),
+          [VALIDATION_LEVELS.LOG]: converge(mergeDeepLeft, [identity, compose(
+            ifElse(isNil, always({}), objOf("validationErrors")),
             getValidationErrors
           )]),
           /* Remove all invalid fields from the action */

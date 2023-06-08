@@ -1,5 +1,5 @@
-import {always, compose, converge, mergeDeepRight, uncurryN} from 'ramda'
-import {duxDefaults} from './schema'
+import {always, compose, converge, mergeDeepRight, uncurryN} from "ramda"
+import {duxDefaults} from "./schema"
 import {
   createDuckEffects,
   createDuckThrottlers,
@@ -16,8 +16,8 @@ import {
   createDuckReducer,
   createDuckMetadata,
   createValidationMiddlewareHelpers
-} from './create'
-import {createDuckExtender} from './extend'
+} from "./create"
+import {createDuckExtender} from "./extend"
 
 /**
  * Builds a duck from a set of options (whose keys are validated against
@@ -25,7 +25,7 @@ import {createDuckExtender} from './extend'
  * state machines, validators, a reducer and basic metadata
  * (including the required 'namespace' and 'store' name).
  *
- * @func
+ * @function
  * @sig {k: v} -> {k: v}
  * @param {Object} options A set of functions, objects (of various schema types)
  * and basic metadata which will go into the finished duck.
@@ -57,7 +57,7 @@ export const createDuck = compose(
  * Those options (supplied later) may include selectors, action creators, state machines,
  * validators, a reducer and basic metadata (including the required 'namespace' and 'store' name).
  *
- * @func
+ * @function
  * @sig {k: v} -> ({k: v} -> {k: v})
  * @param {Object} duck A 'parent' duck whose own options will be merged with those supplied for the new (child) duck.
  * @returns {Object} An extender function, ready to be supplied a set of options to extend the original duck.
@@ -71,7 +71,7 @@ export const createExtenderForDuck = converge(
  * This function is meant to be invoked when both the duck and the child options
  * are available together (not a curried function).
  *
- * @func
+ * @function
  * @sig {k: v} -> {k: v} -> {k: v}
  * @param {Object} duck A 'parent' duck whose own options will be merged with
  * those supplied for the new (child) duck.

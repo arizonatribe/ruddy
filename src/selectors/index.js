@@ -1,16 +1,3 @@
-import {compose, converge, equals, init, last, memoize, pickBy, prop, reduce, toPairs} from 'ramda'
-
-/**
- * A simple function that checks an Object for a prop called "needsExtraction"
- * and determines if it is set to `true`
- *
- * @func
- * @sig {k: v} -> Boolean
- * @param {Object}
- * @returns {Boolean}
- */
-export const needsExtraction = compose(equals(true), prop('needsExtraction'))
-
 /**
  * Helper utility to assist in composing the selectors.
  * Previously defined selectors can be used to derive future selectors.
@@ -19,21 +6,26 @@ export const needsExtraction = compose(equals(true), prop('needsExtraction'))
  * which performs the extraction. This function creates a sort of running total
  * of all selectors and passes them into each `justAddDuckSelectors()`.
  *
- * @func
+ * @function
  * @sig {k: v} -> {k: v}
  * @param {Object} selectors An Object of selector functions, some of which may
  * need to be extracted (those which require access to fellow selectors)
  * @returns {Object} selectors, but now with access to fellow selectors
  */
-export const deriveSelectors = (selectors = {}) =>
-  compose(
-    reduce((composedSelectors, [key, selector]) => ({
+export function deriveSelectors(selectors = {}) {
+  const { needsExtraction, ...restOfSelectors } = selectors
+
+  if (needsExtraction !== true) {
+    return selectors
+  } 
+
+  return Object.entries(restOfSelectors).reduce((composedSelectors, [key, selector]) => {
+    return {
       ...composedSelectors,
       [key]: selector.justAddDuckSelectors(composedSelectors)
-    }), selectors),
-    toPairs,
-    pickBy(needsExtraction)
-  )(selectors)
+    }
+  }, {})
+}
 
 /**
  * A simple, Ramda implementation of Reselect's `createSelector()` function,
@@ -42,12 +34,29 @@ export const deriveSelectors = (selectors = {}) =>
  * paid, so may as well save on another dependency. You can still use Reselect
  * if you prefer; they both work the same.
  *
- * @func
+ * @function
  * @sig (*... -> a) -> (*... -> a)
  * @ param {...Function} selectors One or more selector functions to be "merged" into one
- * @returns {Function} A memoized "selector" function
+ * @returns {function} A memoized "selector" function
  */
-export const createSelector = (...selectors) => memoize(converge(last(selectors), init(selectors)))
+export function createSelector(...selectors) {
+  const cache = {}
+  const outputSelector = selectors.slice(-1)
+  const inputSelectors = selectors.slice(0, selectors.length - 1)
+
+  const fn = (data) => {
+    const input = inputSelectors.map(selector => selector(data))
+    return outputSelector(...input)
+  }
+
+  return (data) => {
+    const key = JSON.stringify(data)
+    if (cache[key] === undefined) {
+      cache[key] = fn(data)
+    }
+    return cache[key]
+  }
+}
 
 /**
  * Selectors that require one or more of the existing selectors are built using this helper,
@@ -61,18 +70,20 @@ export const createSelector = (...selectors) => memoize(converge(last(selectors)
  * `justAddDuckSelectors()` will perform the final step of running the extractor
  * (ideally when the rest of the selectors are all being derived)
  *
- * @func
+ * @function
  * @sig Function -> {k: v}
- * @param {Function} extractFunction A helper that will extract all the existing selectors
+ * @param {function} extractFunction A helper that will extract all the existing selectors
  * @returns {Object}
  */
-export const createDuckSelector = (extractFunction) => ({
-  needsExtraction: true,
-  justAddDuckSelectors(allSelectorsObject = {}) {
-    const extracted = extractFunction(allSelectorsObject)
-    if (Array.isArray(extracted)) {
-      return createSelector(...extracted)
+export function createDuckSelector(extractFunction) {
+  return {
+    needsExtraction: true,
+    justAddDuckSelectors(allSelectorsObject = {}) {
+      const extracted = extractFunction(allSelectorsObject)
+      if (Array.isArray(extracted)) {
+        return createSelector(...extracted)
+      }
+      return extracted
     }
-    return extracted
   }
-})
+}

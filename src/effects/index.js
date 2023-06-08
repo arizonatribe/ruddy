@@ -10,7 +10,7 @@ import {
   identity,
   ifElse,
   is,
-  merge,
+  mergeDeepLeft,
   objOf,
   pathEq,
   pathSatisfies,
@@ -21,9 +21,9 @@ import {
   tryCatch,
   unless,
   when
-} from 'ramda'
-import {makeShaper} from 'shapey'
-import {isPlainObj, isPromise} from '../util/is'
+} from "ramda"
+import { makeShaper } from "shapey"
+import { isPlainObj, isPromise } from "../util/is"
 
 /**
  * A slightly opinionated way to handle successful effects and creating a new
@@ -38,9 +38,9 @@ import {isPlainObj, isPromise} from '../util/is'
  * with your own success handler by providing it when you create an effect in
  * the ducks.
  *
- * @func
+ * @function
  * @sig String|{k: v} -> {k: v} -> {k: v}
- * @param {String|Object} result The result returned from your effect function
+ * @param {string | Object} result The result returned from your effect function
  * @param {Object} action The original Redux action that triggered the effect
  * @returns {Object} A new Action object that contains the "payload" that was
  * caught when the effect was created (unless your effect function returned an
@@ -48,12 +48,12 @@ import {isPlainObj, isPromise} from '../util/is'
  */
 export const defaultSuccessHandler = curry((result, action) =>
   compose(
-    merge(__, {...unless(isPlainObj, objOf('payload'))(result)}),
+    mergeDeepLeft(__, { ...unless(isPlainObj, objOf("payload"))(result) }),
     when(
-      pathSatisfies(is(String), ['type']),
+      pathSatisfies(is(String), ["type"]),
       compose(
-        evolve({type: t => `${t.replace(/_REQUEST$/i, '').replace(/_EFFECT$/i, '')}_SUCCESS`}),
-        pick(['type'])
+        evolve({ type: t => `${t.replace(/_REQUEST$/i, "").replace(/_EFFECT$/i, "")}_SUCCESS` }),
+        pick(["type"])
       )
     )
   )(action)
@@ -71,9 +71,9 @@ export const defaultSuccessHandler = curry((result, action) =>
  * with your own error handler by providing it when you create an effect in
  * the ducks.
  *
- * @func
+ * @function
  * @sig String|{k: v} -> {k: v} -> {k: v}
- * @param {String|Object} error An error that was caught when the effect was
+ * @param {string | Object} error An error that was caught when the effect was
  * triggered
  * @param {Object} action The original Redux action that triggered the effect
  * @returns {Object} A new Action object that contains the "error" that was
@@ -81,55 +81,57 @@ export const defaultSuccessHandler = curry((result, action) =>
  */
 export const defaultErrorHandler = curry((error, action) =>
   compose(
-    merge({error: unless(isPlainObj, String)(error)}),
+    mergeDeepLeft({ error: unless(isPlainObj, String)(error) }),
     when(
-      pathSatisfies(is(String), ['type']),
+      pathSatisfies(is(String), ["type"]),
       compose(
-        evolve({type: t => `${t.replace(/_REQUEST$/i, '').replace(/_EFFECT$/i, '')}_ERROR`}),
-        pick(['type'])
+        evolve({ type: t => `${t.replace(/_REQUEST$/i, "").replace(/_EFFECT$/i, "")}_ERROR` }),
+        pick(["type"])
       )
     )
   )(action)
 )
 
+/* eslint-disable jsdoc/check-param-names */
 /**
  * Makes a predicate function out of either a String, RegExp, or a Function,
  * which can then be applied to an Object that contains a "type" property.
  * This is meant to be used to evaluate if a Redux action matches the predicate.
  * If neither a String, RegExp, nor Function is supplied here, then the result
  * will be to give back a function that always returns false.
- *
- * @func
+ * @function
+ * @param fn
  * @sig String|RegExp|({k: v} -> Boolean) -> ({k: v} -> Boolean)
- * @param {String|RegExp|Function} pattern A String to be exactly matched to an
+ * @param {string | RegExp | function} pattern A String to be exactly matched to an
  * Object's "type" property, OR a Regular expression to be matched against it,
  * OR a function to be used to match against any custom criteria on that Object
- * @returns {Function} A predicate function to be applied later to an Object
+ * @returns {function} A predicate function to be applied later to an Object
  * (ideally, one containing a "type" property)
  */
 export const makePredicate = cond([
-  [is(String), pathEq(['type'])],
-  [is(RegExp), compose(pathSatisfies(__, ['type']), test)],
+  [is(String), pathEq(["type"])],
+  [is(RegExp), compose(pathSatisfies(__, ["type"]), test)],
   [is(Function), (fn) => compose(Boolean, fn)],
   [T, always(F)]
 ])
+/* eslint-enable jsdoc/check-param-names */
 
 /**
  * Creates a function that handles the effect result (either success or failure)
  *
- * @func
+ * @function
  * @sig (a -> b) -> (a -> b) -> (a -> b)
- * @param {Function} defaultHandler The fall through handler function to be used
-* in case the handler passed into this function is null/undefined
-* @param {String|Object|Function} handler The handler function or the
-* String/Object to be turned into a handler function (if String/Object, it will
-* be turned into a Shapey spec-mapping function)
- * @returns {Function} A success OR error handler function to be applied after
+ * @param {function} defaultHandler The fall through handler function to be used
+ * in case the handler passed into this function is null/undefined
+ * @param {string | Object | function} handler The handler function or the
+ * String/Object to be turned into a handler function (if String/Object, it will
+ * be turned into a Shapey spec-mapping function)
+ * @returns {function} A success OR error handler function to be applied after
  * the effect is finished
  */
 export const makeResponseHandler = curry(
   (defaultHandler, handler) => cond([
-    [is(String), compose(makeShaper, objOf('type'))],
+    [is(String), compose(makeShaper, objOf("type"))],
     [isPlainObj, makeShaper],
     [is(Function), identity],
     [T, always(defaultHandler)]
@@ -142,16 +144,16 @@ export const makeResponseHandler = curry(
  * then be applied safely to any Action that matches the predicate (if the
  * Action does NOT match, this is simply an identity function - which returns
  * the Action as-is).
- * 
- * @func
- * @param {String|RegExp|Function} pattern A String to be exactly matched to an
+ *
+ * @function
+ * @param {string | RegExp | function} pattern A String to be exactly matched to an
  * Object's "type" property, OR a Regular expression to be matched against it,
  * OR a function to be used to match against any custom criteria on that Object
- * @param {Function} effectHandler A custom function that creates some kind of 
+ * @param {function} effectHandler A custom function that creates some kind of
  * normal (but "impure") effect which may succeed or it may fail
- * @param {Function} successHandler A function that receives the input of the
+ * @param {function} successHandler A function that receives the input of the
  * effect creating function and creates a new Action containing its result
- * @param {Function} errorHandler A function that receives the caught exception
+ * @param {function} errorHandler A function that receives the caught exception
  * from the effect creating function and creates a new Action from it
  * @returns {Object} Either the original action (if it didn't match the
  * predicate) or a new Action that represents the succes of the effect or

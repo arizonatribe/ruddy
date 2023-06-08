@@ -1,14 +1,14 @@
 /* eslint "max-len": "off" */
-import test from 'tape'
-import {createDuck, extendDuck} from '../src/duck'
-import {createSelector, createDuckSelector} from '../src/selectors'
+import test from "tape"
+import {createDuck, extendDuck} from "../src/duck"
+import {createSelector, createDuckSelector} from "../src/selectors"
 
-test('lets the selectors compose themselves and reference the duck instance', (t) => {
+test("lets the selectors compose themselves and reference the duck instance", (t) => {
   const duck = createDuck({
     initialState: {
       items: [
-        {name: 'apple', value: 1.2},
-        {name: 'orange', value: 0.95}
+        {name: "apple", value: 1.2},
+        {name: "orange", value: 0.95}
       ]
     },
     selectors: {
@@ -23,15 +23,15 @@ test('lets the selectors compose themselves and reference the duck instance', (t
   t.deepEqual(
     duck.selectors.items(duck.initialState),
     [
-      {name: 'apple', value: 1.2},
-      {name: 'orange', value: 0.95}
+      {name: "apple", value: 1.2},
+      {name: "orange", value: 0.95}
     ]
   )
   t.equal(duck.selectors.subTotal(duck.initialState), 2.15)
   t.end()
 })
 
-test('generates the selector function once per selector', (t) => {
+test("generates the selector function once per selector", (t) => {
   let numOfSelectors = 0
   const duck = createDuck({
     selectors: {
@@ -47,7 +47,7 @@ test('generates the selector function once per selector', (t) => {
   t.end()
 })
 
-test('memoizes selector(s) and passes them all duck selectors when createSelector applied manually by the user', (t) => {
+test("memoizes selector(s) and passes them all duck selectors when createSelector applied manually by the user", (t) => {
   const duck = createDuck({
     selectors: {
       test1: state => state.test1,
@@ -62,14 +62,14 @@ test('memoizes selector(s) and passes them all duck selectors when createSelecto
     }
   })
   t.equal(
-    duck.selectors.test3({test1: 'it uses createSelector'}),
-    'it uses createSelector',
-    'verify setting the chain of selectors extracts the \'it uses createSelector\' string from the original state'
+    duck.selectors.test3({test1: "it uses createSelector"}),
+    "it uses createSelector",
+    "verify setting the chain of selectors extracts the 'it uses createSelector' string from the original state"
   )
   t.end()
 })
 
-test('memoizes selector(s) and passes them all the duck selectors, using createSelector when an array of selectors', (t) => {
+test("memoizes selector(s) and passes them all the duck selectors, using createSelector when an array of selectors", (t) => {
   const duck = createDuck({
     selectors: {
       test1: state => state.test1,
@@ -84,21 +84,21 @@ test('memoizes selector(s) and passes them all the duck selectors, using createS
     }
   })
   t.equal(
-    duck.selectors.test3({test1: 'it uses createSelector automagically'}),
-    'it uses createSelector automagically',
-    'verify setting the chain of selectors extracts the string from the original state'
+    duck.selectors.test3({test1: "it uses createSelector automagically"}),
+    "it uses createSelector automagically",
+    "verify setting the chain of selectors extracts the string from the original state"
   )
   t.end()
 })
 
-test('extending updates the old selectors with the new properties', (t) => {
+test("extending updates the old selectors with the new properties", (t) => {
   const duck = createDuck({
-    namespace: 'a',
-    store: 'x',
+    namespace: "a",
+    store: "x",
     initialState: {
       items: [
-        {name: 'apple', value: 1.2},
-        {name: 'orange', value: 0.95}
+        {name: "apple", value: 1.2},
+        {name: "orange", value: 0.95}
       ]
     },
     selectors: {
@@ -106,8 +106,8 @@ test('extending updates the old selectors with the new properties', (t) => {
     }
   })
   const childDuck = extendDuck(duck, {
-    namespace: 'b',
-    store: 'y',
+    namespace: "b",
+    store: "y",
     selectors: {
       subTotal: createDuckSelector(selectors => state =>
         // Get another derived state reusing previous items selector.
@@ -119,8 +119,8 @@ test('extending updates the old selectors with the new properties', (t) => {
   t.deepEqual(
     childDuck.selectors.items(duck.initialState),
     [
-      {name: 'apple', value: 1.2},
-      {name: 'orange', value: 0.95}
+      {name: "apple", value: 1.2},
+      {name: "orange", value: 0.95}
     ]
   )
   t.equal(childDuck.selectors.subTotal(duck.initialState), 2.15)

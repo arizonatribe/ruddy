@@ -1,4 +1,4 @@
-import {curry, is, isEmpty} from 'ramda'
+import {curry, is, isEmpty} from "ramda"
 
 export default curry(
   (throttling, debouncing, action) => {

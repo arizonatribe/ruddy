@@ -14,13 +14,13 @@ import {
   pathOr,
   prop,
   reject
-} from 'ramda'
-import {coerceToFn} from '../util'
+} from "ramda"
+import {coerceToFn} from "../util"
 
 const makeQuery = query => {
   if (is(Array, query)) {
     const buildQuery = find(is(Function), query) || identity
-    const raw = find(is(String), query) || ''
+    const raw = find(is(String), query) || ""
     return buildQuery(raw)
   } else if (is(String, query)) {
     return query
@@ -29,7 +29,7 @@ const makeQuery = query => {
 }
 
 export const getQueries = converge(call, [
-  compose(coerceToFn, pathOr({}, ['options', 'queries'])),
+  compose(coerceToFn, pathOr({}, ["options", "queries"])),
   identity
 ])
 
@@ -42,15 +42,15 @@ export const makeQueries = compose(
 export const getRawQueries = compose(
   filter(is(String)),
   map(ifElse(is(Array), find(is(String)), always(null))),
-  prop('queries')
+  prop("queries")
 )
 
 /**
  * Copies the string values from the Duck's queries into `consts.queries`.
  *
- * @func
+ * @function
  * @sig {k: v} -> {k: v}
  * @param {Object} duck A duck which (may) contain queries (inside of its 'options')
  * @returns {Object} A clone of the duck, but now with `consts.queries`.
  */
-export const copyRawQueriesToConsts = converge(assocPath(['consts', 'queries']), [getRawQueries, identity])
+export const copyRawQueriesToConsts = converge(assocPath(["consts", "queries"]), [getRawQueries, identity])

@@ -1,4 +1,4 @@
-import {identity, pipe, toPairs, fromPairs, map} from 'ramda'
+import {identity, pipe, toPairs, fromPairs, map} from "ramda"
 
 const stubLogger = pipe(toPairs, map(([key]) => [key, identity]), fromPairs)(console)
 

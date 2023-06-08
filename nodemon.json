@@ -1,0 +1,8 @@
+{
+  "quiet": true,
+  "ignore": ["node_modules"],
+  "watch": ["./test", "./src"],
+  "execMap": {
+    "js": "clear && tape --require=@babel/register test"
+  }
+}

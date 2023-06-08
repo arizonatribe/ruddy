@@ -18,24 +18,24 @@ import {
   toPairs,
   values,
   zipObj
-} from 'ramda'
+} from "ramda"
 
-import {isPlainObj, isPrimitiveish, listOfPairsToOneObject, coerceToArray} from '../util'
+import {isPlainObj, isPrimitiveish, listOfPairsToOneObject, coerceToArray} from "../util"
 
 /**
  * Retrieves all a duck's namespaced types
  *
- * @func
+ * @function
  * @sig {k: v} -> [String]
  * @param {Object} duck An object containing an object of action types, whose values are namespaced
- * @returns {String[]} A list of all the namespaced types for a given duck
+ * @returns {string[]} A list of all the namespaced types for a given duck
  */
-export const getTypes = compose(values, prop('types'))
+export const getTypes = compose(values, prop("types"))
 
 /**
  * Merges together either two lists or appends a non-list type into another list
  *
- * @func
+ * @function
  * @sig ([a], b) -> [a, b]
  * @param {Array} left A list of any type of values
  * @param {Array|*} right Either a list of values or any kind of non-list value
@@ -51,7 +51,7 @@ export const concatOrReplace = (left, right) => (
 /**
  * A function which validates and then deep freezes an object of constants
  *
- * @func
+ * @function
  * @sig {k: v} -> {k: v}
  * @param {Object} constants An Object which should contain only primitive values or arrays of primitives values
  * @returns {Object} A frozen Object with only the values which have been validated
@@ -99,17 +99,17 @@ export const createConstants = ifElse(
  * a function that will formats an array of strings to have the namespace and
  * store as prefixes.
  *
- * @func
+ * @function
  * @sig {k: v} -> ([String] -> {k: v})
  * @param {Object} p An Object with both a 'namespace' and 'store' string value,
  * from which to format each action type
- * @returns {Function} A function which takes an array of Strings (action types)
+ * @returns {function} A function which takes an array of Strings (action types)
  * and creates an Object formatted such that the each key and value matches the string,
  * but formatted as 'namespace/store/type'
  */
 export const createTypes = curry(
   ({namespace, store}, types) => zipObj(
     types,
-    types.map(type => `${namespace || ''}/${store || ''}/${type}`)
+    types.map(type => `${namespace || ""}/${store || ""}/${type}`)
   )
 )
